@@ -1,30 +1,29 @@
+# Define the AWS provider
 provider "aws" {
-  region = "ap-south-1"
+  region = "us-east-1" # Change to your preferred region
 }
 
-# VPC
-resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+# Define variables
+variable "instance_type" {
+  default = "t2.micro"
+}
+
+variable "key_name" {
+  description = "The name of the key pair to use for the instance"
+}
+
+# Resource to create an EC2 instance
+resource "aws_instance" "example" {
+  ami           = "ami-0c02fb55956c7d316" # Amazon Linux 2 AMI (in us-east-1)
+  instance_type = var.instance_type
+  key_name      = var.key_name
 
   tags = {
-    Name = "MySimpleVPC"
+    Name = "ExampleInstance"
   }
 }
 
-# Subnet
-resource "aws_subnet" "public" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.1.0/24"
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "SimplePublicSubnet"
-  }
+# Output the public IP of the instance
+output "instance_public_ip" {
+  value = aws_instance.example.public_ip
 }
-
-output "vpc_id" {
-  value = aws_vpc.main.id
-}
-
